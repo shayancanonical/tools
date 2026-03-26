@@ -8,42 +8,42 @@ setup-microceph-certs:
 	#!/usr/bin/bash
 	set -eux
 
-	if [ ! -d "microceph_certs" ]; then
+	if [ ! -d "~/microceph_certs" ]; then
 		host_ip="$(just microceph-node-ip)"
 
-		mkdir microceph_certs
+		mkdir ~/microceph_certs
 
-		openssl genrsa -out ./microceph_certs/ca.key
+		openssl genrsa -out ~/microceph_certs/ca.key
 
 		openssl req \
 			-x509 \
 			-new \
 			-nodes \
-			-key ./microceph_certs/ca.key \
+			-key ~/microceph_certs/ca.key \
 			-days 1024 \
-			-out ./microceph_certs/ca.crt \
+			-out ~/microceph_certs/ca.crt \
 			-outform PEM \
 			-subj /C=US/ST=Denial/L=Springfield/O=Dis/CN=www.example.com
 
-		openssl genrsa -out ./microceph_certs/server.key 2048
+		openssl genrsa -out ~/microceph_certs/server.key 2048
 
 		openssl req \
 			-new \
-			-key ./microceph_certs/server.key \
-			-out ./microceph_certs/server.csr \
+			-key ~/microceph_certs/server.key \
+			-out ~/microceph_certs/server.csr \
 			-subj /C=US/ST=Denial/L=Springfield/O=Dis/CN=www.example.com
 
-		echo "subjectAltName = IP:$host_ip" > ./microceph_certs/extfile.cnf
+		echo "subjectAltName = IP:$host_ip" > ~/microceph_certs/extfile.cnf
 
 		openssl x509 \
 			-req \
-			-in ./microceph_certs/server.csr \
-			-CA ./microceph_certs/ca.crt \
-			-CAkey ./microceph_certs/ca.key \
+			-in ~/microceph_certs/server.csr \
+			-CA ~/microceph_certs/ca.crt \
+			-CAkey ~/microceph_certs/ca.key \
 			-CAcreateserial \
-			-out ./microceph_certs/server.crt \
+			-out ~/microceph_certs/server.crt \
 			-days 365 \
-			-extfile ./microceph_certs/extfile.cnf
+			-extfile ~/microceph_certs/extfile.cnf
 	fi
 
 # Install and bootstrap microceph
@@ -66,8 +66,8 @@ enable-radosgw:
 		just setup-microceph-certs
 
 		sudo microceph enable rgw \
-			--ssl-certificate="$(base64 -w0 ./microceph_certs/server.crt)" \
-			--ssl-private-key="$(base64 -w0 ./microceph_certs/server.key)"
+			--ssl-certificate="$(base64 -w0 ~/microceph_certs/server.crt)" \
+			--ssl-private-key="$(base64 -w0 ~/microceph_certs/server.key)"
 	fi
 
 # Set up microceph user
@@ -133,4 +133,4 @@ copy-into-bucket local_filepath bucket_path:
 clean-microceph:
 	#!/usr/bin/bash
 	sudo snap remove --purge microceph
-	rm -r ./microceph_certs || true
+	rm -r ~/microceph_certs || true

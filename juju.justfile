@@ -2,7 +2,7 @@
 add-model model:
     #!/usr/bin/bash
 
-    if [ '$(juju models --format json | jq ''any(.models[]; .name == "admin/$model")'')' = "true" ]; then
+    if [ "$(juju models --format json | jq --arg model "admin/${model}" 'any(.models[]; .name == $model)')" = "true" ]; then
         juju switch $model
     else
         juju add-model $model
@@ -14,7 +14,13 @@ destroy-model model force="" noprompt="":
     set -eux
 
     if [ "$(juju models --format json | jq --arg model "admin/${model}" 'any(.models[]; .name == $model)')" = "true" ]; then
-        extra_options="$([ -n "$force" ] && echo "--force --destroy-storage")"
-        noprompt_options="$([ -n "$noprompt" ] && echo "--no-prompt")"
-        juju destroy-model $extra_options $model
+        juju destroy-model $model ${force:+"--force --destroy-storage"} ${noprompt:+"--no-prompt"}
     fi
+
+# Show juju status
+juju-status:
+    juju status --watch 1s --relations --storage
+
+# Debug log
+juju-debug-log replay="" include="":
+    juju debug-log ${replay:+"--replay"} ${include:+"--include ${include}"}
