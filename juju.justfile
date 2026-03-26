@@ -14,7 +14,7 @@ destroy-model model force="" noprompt="":
     set -eux
 
     if [ "$(juju models --format json | jq --arg model "admin/${model}" 'any(.models[]; .name == $model)')" = "true" ]; then
-        juju destroy-model $model ${force:+"--force --destroy-storage"} ${noprompt:+"--no-prompt"}
+        juju destroy-model $model ${force:+--force --destroy-storage} ${noprompt:+--no-prompt}
     fi
 
 # Show juju status
@@ -23,4 +23,8 @@ juju-status:
 
 # Debug log
 juju-debug-log replay="" include="":
-    juju debug-log ${replay:+"--replay"} ${include:+"--include ${include}"}
+    juju debug-log ${replay:+--replay} ${include:+--include $include}
+
+# Set juju update status interval
+update-status-interval interval:
+    juju model-config update-status-hook-interval=${interval}

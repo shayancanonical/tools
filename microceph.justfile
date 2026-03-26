@@ -75,7 +75,7 @@ setup-microceph-user username access_key="foo" secret_key="bar" caps="buckets=*;
 	#!/usr/bin/bash
 	set -eux
 
-	if [ "$(sudo microceph.radosgw-admin user list | grep $username | wc -l)" -ne "1" ]; then
+	if [ "$(sudo microceph.radosgw-admin user list | grep '"$username"' | wc -l)" -ne "1" ]; then
 		sudo microceph.radosgw-admin user create \
 			--uid $username \
 			--display-name $username \
@@ -110,22 +110,34 @@ setup-microceph:
 	sudo microceph status
 
 # Create bucket
-create-bucket bucket:
+create-bucket bucket access_key secret_key:
 	#!/usr/bin/bash
 	set -eux
+
+	export AWS_CA_BUNDLE=/home/shayan/microceph_certs/ca.crt
+	export AWS_ACCESS_KEY_ID=$access_key
+	export AWS_SECRET_ACCESS_KEY=$secret_key
 
 	aws s3 mb s3://$bucket --endpoint-url=https://$(just microceph-node-ip)
 
 # List buckets
-list-bucket bucket_path:
+list-bucket bucket_path access_key secret_key:
 	#!/usr/bin/bash
 	set -eux
+
+	export AWS_CA_BUNDLE=/home/shayan/microceph_certs/ca.crt
+	export AWS_ACCESS_KEY_ID=$access_key
+	export AWS_SECRET_ACCESS_KEY=$secret_key
 
 	aws s3 ls s3://$bucket_path --endpoint-url=https://$(just microceph-node-ip)
 
-copy-into-bucket local_filepath bucket_path:
+copy-into-bucket local_filepath bucket_path access_key="" secret_key="":
 	#!/usr/bin/bash
 	set -eux
+
+	export AWS_CA_BUNDLE=/home/shayan/microceph_certs/ca.crt
+	export AWS_ACCESS_KEY_ID=$access_key
+	export AWS_SECRET_ACCESS_KEY=$secret_key
 
 	aws s3 cp $local_filepath s3://$bucket_path --endpoint-url=https://$(just microceph-node-ip)
 
