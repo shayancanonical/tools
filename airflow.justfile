@@ -139,12 +139,12 @@ airflow-pack-triggerer:
 # Pack airflow-rock
 airflow-pack-rock version="3.1":
     #!/usr/bin/bash
-    cd $AIRFLOW_ROCK_REPO_LOCATION/${version}
+    cd "$AIRFLOW_ROCK_REPO_LOCATION/${version}"
 
     rockcraft pack
 
-    mkdir -p $JUST_TEMP_DIR_LOCATION/rocks
-    mv airflow*.rock $JUST_TEMP_DIR_LOCATION/rocks
+    mkdir -p "${JUST_TEMP_DIR_LOCATION}/rocks"
+    mv airflow*.rock "${JUST_TEMP_DIR_LOCATION}/rocks"
 
 # Add s3 dag bundle to deployed airflow
 [arg("bucket", long="bucket")]
