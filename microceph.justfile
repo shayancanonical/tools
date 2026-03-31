@@ -4,7 +4,7 @@ microceph-node-ip:
 	echo "$(sudo microceph status | head -n 2 | tail -n 1 | awk '{print $3}' | tr -d '()')"
 
 # Create certificates for microceph
-setup-microceph-certs:
+microceph-setup-certs:
 	#!/usr/bin/bash
 	set -eux
 
@@ -47,7 +47,7 @@ setup-microceph-certs:
 	fi
 
 # Install and bootstrap microceph
-install-and-bootstrap-microceph:
+microceph-install-and-bootstrap:
 	#!/usr/bin/bash
 	set -eux
 
@@ -58,12 +58,12 @@ install-and-bootstrap-microceph:
 	fi
 
 # Enable radosgw if it is not already
-enable-radosgw:
+microceph-enable-radosgw:
 	#!/usr/bin/bash
 	set -eux
 
 	if [ "$(sudo microceph status | grep Services | grep rgw | wc -l)" -ne "1" ]; then
-		just setup-microceph-certs
+		just microceph-setup-certs
 
 		sudo microceph enable rgw \
 			--ssl-certificate="$(base64 -w0 ~/microceph_certs/server.crt)" \
@@ -71,7 +71,7 @@ enable-radosgw:
 	fi
 
 # Set up microceph user
-setup-microceph-user username access_key="foo" secret_key="bar" caps="buckets=*;users=read;usage=*;metadata=*":
+microceph-setup-user username access_key="foo" secret_key="bar" caps="buckets=*;users=read;usage=*;metadata=*":
 	#!/usr/bin/bash
 	set -eux
 
@@ -88,11 +88,11 @@ setup-microceph-user username access_key="foo" secret_key="bar" caps="buckets=*;
 	fi
 
 # Set up microceph for local usage
-setup-microceph:
+microceph-setup:
 	#!/usr/bin/bash
 	set -eux
 
-	just install-and-bootstrap-microceph
+	just microceph-install-and-bootstrap
 
 	host_ip="$(just microceph-node-ip)"
 
@@ -101,16 +101,16 @@ setup-microceph:
 		host_ip="$(just microceph-node-ip)"
 	done
 
-	just setup-microceph-certs
+	just microceph-setup-certs
 
-	just enable-radosgw
+	just microceph-enable-radosgw
 
-	just setup-microceph-user test
+	just microceph-setup-user test
 
 	sudo microceph status
 
 # Create bucket
-create-bucket bucket access_key secret_key:
+s3-create-bucket bucket access_key secret_key:
 	#!/usr/bin/bash
 	set -eux
 
@@ -121,7 +121,7 @@ create-bucket bucket access_key secret_key:
 	aws s3 mb s3://$bucket --endpoint-url=https://$(just microceph-node-ip)
 
 # List buckets
-list-bucket bucket_path access_key secret_key:
+s3-list-bucket bucket_path access_key secret_key:
 	#!/usr/bin/bash
 	set -eux
 
@@ -131,7 +131,7 @@ list-bucket bucket_path access_key secret_key:
 
 	aws s3 ls s3://$bucket_path --endpoint-url=https://$(just microceph-node-ip)
 
-copy-into-bucket local_filepath bucket_path access_key="" secret_key="":
+s3-copy-into-bucket local_filepath bucket_path access_key="" secret_key="":
 	#!/usr/bin/bash
 	set -eux
 
@@ -142,7 +142,7 @@ copy-into-bucket local_filepath bucket_path access_key="" secret_key="":
 	aws s3 cp $local_filepath s3://$bucket_path --endpoint-url=https://$(just microceph-node-ip)
 
 # Clean up microceph and related files
-clean-microceph:
+microceph-clean:
 	#!/usr/bin/bash
 	sudo snap remove --purge microceph
 	rm -r ~/microceph_certs || true

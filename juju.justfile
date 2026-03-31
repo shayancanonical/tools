@@ -1,5 +1,5 @@
 # Add model, if it does not exist
-add-model model:
+juju-add-model model:
     #!/usr/bin/bash
 
     if [ "$(juju models --format json | jq --arg model "admin/${model}" 'any(.models[]; .name == $model)')" = "true" ]; then
@@ -9,7 +9,9 @@ add-model model:
     fi
 
 # Destroy a model if it exists
-destroy-model model force="" noprompt="":
+[arg("force", long="force", value="true")]
+[arg("noprompt", long="no-prompt", value="true")]
+juju-destroy-model model force="" noprompt="":
     #!/usr/bin/bash
     set -eux
 
@@ -26,5 +28,5 @@ juju-debug-log replay="" include="":
     juju debug-log ${replay:+--replay} ${include:+--include $include}
 
 # Set juju update status interval
-update-status-interval interval:
+juju-update-status-interval interval:
     juju model-config update-status-hook-interval=${interval}
