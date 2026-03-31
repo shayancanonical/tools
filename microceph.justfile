@@ -8,7 +8,7 @@ microceph-setup-certs:
 	#!/usr/bin/bash
 	set -eux
 
-	if [ ! -d "~/microceph_certs" ]; then
+	if [ ! -d ~/microceph_certs ]; then
 		host_ip="$(just microceph-node-ip)"
 
 		mkdir ~/microceph_certs
