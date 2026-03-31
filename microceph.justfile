@@ -8,42 +8,42 @@ microceph-setup-certs:
 	#!/usr/bin/bash
 	set -eux
 
-	if [ ! -d ~/microceph_certs ]; then
+	if [ ! -d $JUST_TEMP_DIR_LOCATION/microceph_certs ]; then
 		host_ip="$(just microceph-node-ip)"
 
-		mkdir ~/microceph_certs
+		mkdir $JUST_TEMP_DIR_LOCATION/microceph_certs
 
-		openssl genrsa -out ~/microceph_certs/ca.key
+		openssl genrsa -out $JUST_TEMP_DIR_LOCATION/microceph_certs/ca.key
 
 		openssl req \
 			-x509 \
 			-new \
 			-nodes \
-			-key ~/microceph_certs/ca.key \
+			-key $JUST_TEMP_DIR_LOCATION/microceph_certs/ca.key \
 			-days 1024 \
-			-out ~/microceph_certs/ca.crt \
+			-out $JUST_TEMP_DIR_LOCATION/microceph_certs/ca.crt \
 			-outform PEM \
 			-subj /C=US/ST=Denial/L=Springfield/O=Dis/CN=www.example.com
 
-		openssl genrsa -out ~/microceph_certs/server.key 2048
+		openssl genrsa -out $JUST_TEMP_DIR_LOCATION/microceph_certs/server.key 2048
 
 		openssl req \
 			-new \
-			-key ~/microceph_certs/server.key \
-			-out ~/microceph_certs/server.csr \
+			-key $JUST_TEMP_DIR_LOCATION/microceph_certs/server.key \
+			-out $JUST_TEMP_DIR_LOCATION/microceph_certs/server.csr \
 			-subj /C=US/ST=Denial/L=Springfield/O=Dis/CN=www.example.com
 
-		echo "subjectAltName = IP:$host_ip" > ~/microceph_certs/extfile.cnf
+		echo "subjectAltName = IP:$host_ip" > $JUST_TEMP_DIR_LOCATION/microceph_certs/extfile.cnf
 
 		openssl x509 \
 			-req \
-			-in ~/microceph_certs/server.csr \
-			-CA ~/microceph_certs/ca.crt \
-			-CAkey ~/microceph_certs/ca.key \
+			-in $JUST_TEMP_DIR_LOCATION/microceph_certs/server.csr \
+			-CA $JUST_TEMP_DIR_LOCATION/microceph_certs/ca.crt \
+			-CAkey $JUST_TEMP_DIR_LOCATION/microceph_certs/ca.key \
 			-CAcreateserial \
-			-out ~/microceph_certs/server.crt \
+			-out $JUST_TEMP_DIR_LOCATION/microceph_certs/server.crt \
 			-days 365 \
-			-extfile ~/microceph_certs/extfile.cnf
+			-extfile $JUST_TEMP_DIR_LOCATION/microceph_certs/extfile.cnf
 	fi
 
 # Install and bootstrap microceph
@@ -66,8 +66,8 @@ microceph-enable-radosgw:
 		just microceph-setup-certs
 
 		sudo microceph enable rgw \
-			--ssl-certificate="$(base64 -w0 ~/microceph_certs/server.crt)" \
-			--ssl-private-key="$(base64 -w0 ~/microceph_certs/server.key)"
+			--ssl-certificate="$(base64 -w0 $JUST_TEMP_DIR_LOCATION/microceph_certs/server.crt)" \
+			--ssl-private-key="$(base64 -w0 $JUST_TEMP_DIR_LOCATION/microceph_certs/server.key)"
 	fi
 
 # Set up microceph user
@@ -114,7 +114,7 @@ s3-create-bucket bucket access_key secret_key:
 	#!/usr/bin/bash
 	set -eux
 
-	export AWS_CA_BUNDLE=/home/shayan/microceph_certs/ca.crt
+	export AWS_CA_BUNDLE=$JUST_TEMP_DIR_LOCATION/microceph_certs/ca.crt
 	export AWS_ACCESS_KEY_ID=$access_key
 	export AWS_SECRET_ACCESS_KEY=$secret_key
 
@@ -125,7 +125,7 @@ s3-list-bucket bucket_path access_key secret_key:
 	#!/usr/bin/bash
 	set -eux
 
-	export AWS_CA_BUNDLE=/home/shayan/microceph_certs/ca.crt
+	export AWS_CA_BUNDLE=$JUST_TEMP_DIR_LOCATION/microceph_certs/ca.crt
 	export AWS_ACCESS_KEY_ID=$access_key
 	export AWS_SECRET_ACCESS_KEY=$secret_key
 
@@ -135,7 +135,7 @@ s3-copy-into-bucket local_filepath bucket_path access_key="" secret_key="":
 	#!/usr/bin/bash
 	set -eux
 
-	export AWS_CA_BUNDLE=/home/shayan/microceph_certs/ca.crt
+	export AWS_CA_BUNDLE=$JUST_TEMP_DIR_LOCATION/microceph_certs/ca.crt
 	export AWS_ACCESS_KEY_ID=$access_key
 	export AWS_SECRET_ACCESS_KEY=$secret_key
 
@@ -145,4 +145,4 @@ s3-copy-into-bucket local_filepath bucket_path access_key="" secret_key="":
 microceph-clean:
 	#!/usr/bin/bash
 	sudo snap remove --purge microceph
-	rm -r ~/microceph_certs || true
+	rm -r $JUST_TEMP_DIR_LOCATION/microceph_certs || true

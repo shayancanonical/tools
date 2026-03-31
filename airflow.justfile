@@ -17,32 +17,32 @@ airflow-deploy model="airflow" channel="3.1/edge" airflow_rock="" coordinator_ch
         just airflow-pack-rock
 
         just docker-start-local-registry
-        just docker-push-rock-to-local-registry $(ls ~/rocks/airflow*.rock) airflow dev2
+        just docker-push-rock-to-local-registry $(ls $JUST_TEMP_DIR_LOCATION/rocks/airflow*.rock) airflow dev2
     fi
 
     if [ -n "$coordinator_charm" ]; then
         just airflow-pack-coordinator
-        coordinator_charm=$(ls ~/charms/airflow-coordinator*.charm)
+        coordinator_charm=$(ls $JUST_TEMP_DIR_LOCATION/charms/airflow-coordinator*.charm)
     fi
 
     if [ -n "$api_server_charm" ]; then
         just airflow-pack-api-server
-        api_server_charm=$(ls ~/charms/airflow-api-server*.charm)
+        api_server_charm=$(ls $JUST_TEMP_DIR_LOCATION/charms/airflow-api-server*.charm)
     fi
 
     if [ -n "$scheduler_charm" ]; then
         just airflow-pack-scheduler
-        scheduler_charm=$(ls ~/charms/airflow-scheduler*.charm)
+        scheduler_charm=$(ls $JUST_TEMP_DIR_LOCATION/charms/airflow-scheduler*.charm)
     fi
 
     if [ -n "$dag_processor_charm" ]; then
         just airflow-pack-dag-processor
-        dag_processor_charm=$(ls ~/charms/airflow-dag-processor*.charm)
+        dag_processor_charm=$(ls $JUST_TEMP_DIR_LOCATION/charms/airflow-dag-processor*.charm)
     fi
 
     if [ -n "$triggerer_charm" ]; then
         just airflow-pack-triggerer
-        triggerer_charm=$(ls ~/charms/airflow-triggerer*.charm)
+        triggerer_charm=$(ls $JUST_TEMP_DIR_LOCATION/charms/airflow-triggerer*.charm)
     fi
 
     just juju-add-model $model
@@ -97,54 +97,54 @@ airflow-deploy model="airflow" channel="3.1/edge" airflow_rock="" coordinator_ch
 
 # Pack airflow-coordinator charm
 airflow-pack-coordinator:
-    mkdir -p ~/charms
+    mkdir -p $JUST_TEMP_DIR_LOCATION/charms
 
-    charmcraft pack --project-dir ~/code/airflow-coordinator-k8s-operator
+    charmcraft pack --project-dir $AIRFLOW_COORDINATOR_REPO_LOCATION
 
-    mv airflow-coordinator*.charm ~/charms
+    mv airflow-coordinator*.charm $JUST_TEMP_DIR_LOCATION/charms
 
 # Pack airflow-api-server charm
 airflow-pack-api-server:
-    mkdir -p ~/charms
+    mkdir -p $JUST_TEMP_DIR_LOCATION/charms
 
-    charmcraft pack --project-dir ~/code/airflow-core-operators/charms/api-server
+    charmcraft pack --project-dir $AIRFLOW_CORE_REPO_LOCATION/charms/api-server
 
-    mv airflow-api-server*.charm ~/charms
+    mv airflow-api-server*.charm $JUST_TEMP_DIR_LOCATION/charms
 
 
 # Pack airflow-scheduler charm
 airflow-pack-scheduler:
-    mkdir -p ~/charms
+    mkdir -p $JUST_TEMP_DIR_LOCATION/charms
 
-    charmcraft pack --project-dir ~/code/airflow-core-operators/charms/scheduler
+    charmcraft pack --project-dir $AIRFLOW_CORE_REPO_LOCATION/charms/scheduler
 
-    mv airflow-scheduler*.charm ~/charms
+    mv airflow-scheduler*.charm $JUST_TEMP_DIR_LOCATION/charms
 
 # Pack airflow-dag-processor charm
 airflow-pack-dag-processor:
-    mkdir -p ~/charms
+    mkdir -p $JUST_TEMP_DIR_LOCATION/charms
 
-    charmcraft pack --project-dir ~/code/airflow-core-operators/charms/dag-processor
+    charmcraft pack --project-dir $AIRFLOW_CORE_REPO_LOCATION/charms/dag-processor
 
-    mv airflow-dag-processor*.charm ~/charms
+    mv airflow-dag-processor*.charm $JUST_TEMP_DIR_LOCATION/charms
 
 # Pack airflow-triggerer charm
 airflow-pack-triggerer:
-    mkdir -p ~/charms
+    mkdir -p $JUST_TEMP_DIR_LOCATION/charms
 
-    charmcraft pack --project-dir ~/code/airflow-core-operators/charms/triggerer
+    charmcraft pack --project-dir $AIRFLOW_CORE_REPO_LOCATION/charms/triggerer
 
-    mv airflow-triggerer*.charm ~/charms
+    mv airflow-triggerer*.charm $JUST_TEMP_DIR_LOCATION/charms
 
 # Pack airflow-rock
 airflow-pack-rock version="3.1":
     #!/usr/bin/bash
-    cd ~/code/airflow-rocks/${version}
+    cd $AIRFLOW_ROCK_REPO_LOCATION/${version}
 
     rockcraft pack
 
-    mkdir -p ~/rocks
-    mv airflow*.rock ~/rocks
+    mkdir -p $JUST_TEMP_DIR_LOCATION/rocks
+    mv airflow*.rock $JUST_TEMP_DIR_LOCATION/rocks
 
 # Add s3 dag bundle to deployed airflow
 [arg("bucket", long="bucket")]
