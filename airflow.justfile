@@ -4,11 +4,11 @@ import "juju.justfile"
 [arg("model", long="model")]
 [arg("channel", long="channel")]
 [arg("airflow_rock", long="airflow-rock", value="true")]
-[arg("coordinator_charm", long="coordinator-charm", "true")]
-[arg("api_server_charm", long="api-server-charm", "true")]
-[arg("scheduler_charm", long="scheduler-charm", "true")]
-[arg("dag_processor_charm", long="dag-processor-charm", "true")]
-[arg("triggerer_charm", long="triggerer-charm", "true")]
+[arg("coordinator_charm", long="coordinator-charm", value="true")]
+[arg("api_server_charm", long="api-server-charm", value="true")]
+[arg("scheduler_charm", long="scheduler-charm", value="true")]
+[arg("dag_processor_charm", long="dag-processor-charm", value="true")]
+[arg("triggerer_charm", long="triggerer-charm", value="true")]
 airflow-deploy model="airflow" channel="3.1/edge" airflow_rock="" coordinator_charm="" api_server_charm="" scheduler_charm="" dag_processor_charm="" triggerer_charm="":
     #!/usr/bin/bash
     set -eux
